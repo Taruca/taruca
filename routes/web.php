@@ -14,3 +14,12 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
+
+/* 后台模块 */
+Route::middleware(['auth'])->group(function () {
+    require_once __DIR__ . '/backend.php';
+});
