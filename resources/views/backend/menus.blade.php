@@ -14,11 +14,20 @@
         .menu-tabs {
             padding: 5px;
         }
+
+        .ztree li span.button.add {
+            margin-left: 2px;
+            margin-right: 2px;
+            background-position: -144px 0;
+            vertical-align: top;
+            *vertical-align: middle
+        }
+
     </style>
 @endsection
 
 @section('content')
-    <div class="content-wrapper">
+    <div class="content-wrapper" id="menus-app">
         <!-- Main content -->
         <section class="content">
             <div class="row">
@@ -109,15 +118,26 @@
 @endsection
 
 @section('js')
-    <script src="/plugins/zTree/js/jquery.ztree.core.js" type="text/javascript"></script>
+    <script src="/plugins/zTree/js/jquery.ztree.all.js" type="text/javascript"></script>
     <script type="text/javascript">
         $(document).ready(function () {
-                    {{--http://www.treejs.cn/v3/main.php#_zTreeInfo--}}
+            {{--http://www.treejs.cn/v3/main.php#_zTreeInfo--}}
             var zTreeObj;
             // zTree 的参数配置，深入使用请参考 API 文档（setting 配置详解）
             var setting = {
                 callback: {
                     onClick: zTreeOnClick
+                },
+                edit: {
+                    enable: true,
+                    showRemoveBtn: true,
+                    removeTitle: "删除菜单",
+                    showRenameBtn: false,
+                    renameTitle: "重命名"
+                },
+                view: {
+                    addHoverDom: addHoverDom,
+                    removeHoverDom: removeHoverDom
                 }
             };
             // zTree 的数据属性，深入使用请参考 API 文档（zTreeNode 节点数据详解）
@@ -135,12 +155,15 @@
 
         var data = {formData: {}};
         var vm = new Vue({
-            delimiters: ['${', '}'],
+            el: '#menus-app',
             data: data
         });
 
         //点击菜单节点获取菜单数据
         function zTreeOnClick(event, treeId, treeNode) {
+            if (treeNode.level === 0) {
+                return;
+            }
             $.ajax({
                 type: "GET",
                 url: "get_menu",
@@ -149,18 +172,67 @@
                 success: function (data) {
                     $(".menu-no-selected").hide();
                     $(".menu-selected").show();
-                    console.log(vm.$data);
                     vm.$set(vm, 'formData', data);
                 }
             });
         }
 
+        var newCount = 1;
+        var maxMenuId = parseInt("{{DB::table('menus')->max('id')}}");
+        function addHoverDom(treeId, treeNode) {
+            var sObj = $("#" + treeNode.tId + "_span");
+            if (treeNode.editNameFlag || $("#addBtn_"+treeNode.tId).length>0) return;
+            var addStr = "<span class='button add' id='addBtn_" + treeNode.tId
+                + "' title='add node' onfocus='this.blur();'></span>";
+            sObj.after(addStr);
+            var btn = $("#addBtn_"+treeNode.tId);
+            if (btn) btn.bind("click", function(){
+                var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+                //如果没有初始化，则初始化maxMenuId
+                var id = maxMenuId + newCount;
+                var name = "新菜单" + (newCount++);
+                zTree.addNodes(treeNode, {id:id, pId:treeNode.id, name:name});
+                //增加菜单
+                var data = {
+                    id: id,
+                    parent_id: treeNode.id,
+                    icon: 'fa-list',
+                    name: name,
+                    route: '#',
+                    description: '',
+                    sort: 999,
+                    hide: 0
+                };
+                $.ajax({
+                    type: 'post',
+                    url: '',
+                    data: data,
+                    dataType: "json",
+                    success: function (response) {
+                        //todo 填url，完善增加菜单控制器
+                    }
+                });
+                newCount++;
+                return false;
+            });
+        }
+
+        function removeHoverDom(treeId, treeNode) {
+            $("#addBtn_"+treeNode.tId).unbind().remove();
+        }
+
+        //编辑菜单
         $("#submit").click(function () {
-            console.log(getFormVal());
+            var data = vm.formData;
+            if (data.hide === true) {
+                data.hide = 1;
+            } else {
+                data.hide = 0;
+            }
             $.ajax({
                 type: "post",
                 url: "get_menu",
-                data: getFormVal(),
+                data: data,
                 dataType: "json",
                 success: function (data) {
                     if (data.code === 0) {
@@ -172,22 +244,6 @@
             });
         });
 
-        function setFormVal(data) {
-            $("#id").val(data.id);
-            $("#name").val(data.name);
-            $("#route").val(data.route);
-            $("#icon").val(data.icon);
-            $("#sort").val(data.sort);
-            $("#description").val(data.description);
-            var hide = $("#hide");
-            if (data.hide) {
-                hide.attr('checked', true);
-                hide.attr('value', data.hide);
-            } else {
-                hide.attr('checked', false);
-                hide.attr('value', data.hide);
-            }
-        }
     </script>
 @endsection
 

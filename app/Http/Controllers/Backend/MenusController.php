@@ -46,6 +46,13 @@ class MenusController extends Controller
             }
             $tree[] = $tmp;
         }
+        $tree = [
+            'id' => 0,
+            'name' => '根目录',
+            'open' => true,
+            'children' => $tree,
+            'level' => 0
+        ];
         return response()->json($tree);
     }
 
@@ -67,7 +74,6 @@ class MenusController extends Controller
         if (!array_key_exists('hide', $data)) {
             $data['hide'] = 0;
         }
-        var_dump($data);exit(0);
         Menu::where('id', $id)->update($data);
 
         $result = ['code' => 0];
