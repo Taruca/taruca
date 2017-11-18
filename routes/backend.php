@@ -1,6 +1,6 @@
 <?php
-Route::get('backend/index', 'IndexController@index');
-Route::get('backend/menus', 'MenusController@index');
-Route::get('backend/get_menus', 'MenusController@getMenus');
-Route::get('backend/get_menu', 'MenusController@getMenu');
-Route::post('backend/get_menu', 'MenusController@setMenu');
+Route::get('index', 'IndexController@index');
+Route::get('menus', 'MenusController@index');
+Route::get('get_menus', 'MenusController@getMenus');
+Route::get('get_menu', 'MenusController@getMenu');
+Route::post('get_menu', 'MenusController@setMenu');

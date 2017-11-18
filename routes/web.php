@@ -20,6 +20,7 @@ Auth::routes();
 Route::get('/home', 'HomeController@index')->name('home');
 
 /* 后台模块 */
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth'])->prefix('backend')
+    ->namespace('Backend')->group(function () {
     require_once __DIR__ . '/backend.php';
 });
