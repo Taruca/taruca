@@ -23,4 +23,9 @@ class Menu extends Model
             ->active()->orderBy('parent_id', 'sort')->get()->groupBy('parent_id');
         return $menus;
     }
+
+    public function hasChildren($id) {
+        $count = $this->where('parent_id', $id)->count();
+        return $count > 0;
+    }
 }

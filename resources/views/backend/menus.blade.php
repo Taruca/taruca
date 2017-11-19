@@ -121,36 +121,7 @@
     <script src="/plugins/zTree/js/jquery.ztree.all.js" type="text/javascript"></script>
     <script type="text/javascript">
         $(document).ready(function () {
-            {{--http://www.treejs.cn/v3/main.php#_zTreeInfo--}}
-            var zTreeObj;
-            // zTree 的参数配置，深入使用请参考 API 文档（setting 配置详解）
-            var setting = {
-                callback: {
-                    onClick: zTreeOnClick
-                },
-                edit: {
-                    enable: true,
-                    showRemoveBtn: true,
-                    removeTitle: "删除菜单",
-                    showRenameBtn: false,
-                    renameTitle: "重命名"
-                },
-                view: {
-                    addHoverDom: addHoverDom,
-                    removeHoverDom: removeHoverDom
-                }
-            };
-            // zTree 的数据属性，深入使用请参考 API 文档（zTreeNode 节点数据详解）
-
-            $.ajax({
-                type: "GET",
-                url: "get_menus",
-                data: {},
-                dataType: "json",
-                success: function (zNodes) {
-                    zTreeObj = $.fn.zTree.init($("#treeDemo"), setting, zNodes);
-                }
-            });
+            getMenus();
         });
 
         var data = {formData: {}};
@@ -158,6 +129,33 @@
             el: '#menus-app',
             data: data
         });
+
+                {{--http://www.treejs.cn/v3/main.php#_zTreeInfo--}}
+        var zTreeObj;
+        // zTree 的参数配置，深入使用请参考 API 文档（setting 配置详解）
+        var setting = {
+            callback: {
+                onClick: zTreeOnClick,
+                beforeRemove: zTreeBeforeRemove,
+                beforeDrop: beforeDrop
+            },
+            edit: {
+                enable: true,
+                showRemoveBtn: true,
+                removeTitle: "删除菜单",
+                showRenameBtn: false,
+                renameTitle: "重命名",
+                drag: {
+                    isMove: true,
+                    isCopy: false
+                }
+            },
+            view: {
+                addHoverDom: addHoverDom,
+                removeHoverDom: removeHoverDom
+            }
+        };
+        // zTree 的数据属性，深入使用请参考 API 文档（zTreeNode 节点数据详解）
 
         //点击菜单节点获取菜单数据
         function zTreeOnClick(event, treeId, treeNode) {
@@ -177,9 +175,13 @@
             });
         }
 
+        //用户自定义按钮(新增按钮)
         var newCount = 1;
         var maxMenuId = parseInt("{{DB::table('menus')->max('id')}}");
         function addHoverDom(treeId, treeNode) {
+            if (treeNode.level > 1) {
+                return false;
+            }
             var sObj = $("#" + treeNode.tId + "_span");
             if (treeNode.editNameFlag || $("#addBtn_"+treeNode.tId).length>0) return;
             var addStr = "<span class='button add' id='addBtn_" + treeNode.tId
@@ -190,33 +192,36 @@
                 var zTree = $.fn.zTree.getZTreeObj("treeDemo");
                 //如果没有初始化，则初始化maxMenuId
                 var id = maxMenuId + newCount;
-                var name = "新菜单" + (newCount++);
-                zTree.addNodes(treeNode, {id:id, pId:treeNode.id, name:name});
-                //增加菜单
+                var name = "新菜单" + (newCount);
+                //后台增加菜单
                 var data = {
                     id: id,
                     parent_id: treeNode.id,
                     icon: 'fa-list',
                     name: name,
                     route: '#',
-                    description: '',
+                    description: name,
                     sort: 999,
-                    hide: 0
+                    hide: 0,
+                    level: treeNode.level
                 };
                 $.ajax({
                     type: 'post',
-                    url: '',
+                    url: 'store_menu',
                     data: data,
                     dataType: "json",
                     success: function (response) {
-                        //todo 填url，完善增加菜单控制器
+                        if (response.code === 0) {
+                            zTree.addNodes(treeNode, {id:id, pId:treeNode.id, name:name, level: treeNode.level + 1});
+                            newCount++;
+                        } else {
+                            alert(response.desc);
+                        }
                     }
                 });
-                newCount++;
                 return false;
             });
         }
-
         function removeHoverDom(treeId, treeNode) {
             $("#addBtn_"+treeNode.tId).unbind().remove();
         }
@@ -237,6 +242,7 @@
                 success: function (data) {
                     if (data.code === 0) {
                         alert('保存成功');
+                        getMenus();
                     } else {
                         alert('保存失败');
                     }
@@ -244,6 +250,77 @@
             });
         });
 
+        //删除菜单
+        function zTreeBeforeRemove(treeId, treeNode) {
+            if (treeNode.id == 0) {
+                alert('根菜单无法删除');
+                return false;
+            }
+            if (treeNode.isParent) {
+                alert('请先删除子菜单');
+                return false;
+            }
+            if (confirm("确认删除 菜单：" + treeNode.name + " 吗？")) {
+                return destroyMenu(treeNode.id);
+            } else {
+                return false;
+            }
+        }
+
+        //不能移动到2级菜单下
+        function beforeDrop(treeId, treeNodes, targetNode, moveType) {
+            if (targetNode.drop !== false) {
+                setting.edit.drag.isMove = false;
+                $.ajax({
+                    type: 'post',
+                    url: 'change_parent',
+                    data: {
+                        id: treeNodes[0].id,
+                        targetId: targetNode.id
+                    },
+                    dataType: 'json',
+                    success: function (response) {
+                        getMenus();
+                        setting.edit.drag.isMove = true;
+                    }
+                });
+                return true;
+            }
+            return false;
+        }
+
+        function getMenus() {
+            $.ajax({
+                type: "GET",
+                url: "get_menus",
+                data: {},
+                dataType: "json",
+                success: function (zNodes) {
+                    zTreeObj = $.fn.zTree.init($("#treeDemo"), setting, zNodes);
+                }
+            });
+        }
+
+        function destroyMenu(id) {
+            $.ajax({
+                type: 'post',
+                url: 'destroy_menu',
+                data: {id: id},
+                dataType: 'json',
+                success: function (response) {
+                    if (response.code === 0) {
+                        if (vm.formData.id == id) {
+                            //删除当前选中菜单时，右侧界面恢复
+                            vm.formData = {};
+                        }
+                        return true;
+                    } else {
+                        alert(response.desc);
+                        return false;
+                    }
+                }
+            })
+        }
     </script>
 @endsection
 
