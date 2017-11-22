@@ -1,0 +1,1 @@
+import {Pagination, PaginationEvent} from '/node_modules/vue-pagination-2';

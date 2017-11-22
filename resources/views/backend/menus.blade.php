@@ -27,7 +27,7 @@
 @endsection
 
 @section('content')
-    <div class="content-wrapper" id="menus-app">
+    <div class="content-wrapper">
         <!-- Main content -->
         <section class="content">
             <div class="row">
@@ -52,7 +52,7 @@
 
                                         <div class="col-sm-10">
                                             <input type="text" class="form-control" id="name" name="name"
-                                                   placeholder="名称" maxlength="20" v-model="formData.name">
+                                                   placeholder="名称" maxlength="20">
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -60,7 +60,7 @@
 
                                         <div class="col-sm-10">
                                             <input type="text" class="form-control" id="route" name="route"
-                                                   placeholder="路由" v-model="formData.route">
+                                                   placeholder="路由">
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -68,7 +68,7 @@
 
                                         <div class="col-sm-10">
                                             <input type="text" class="form-control" id="icon" name="icon"
-                                                   placeholder="图标" v-model="formData.icon">
+                                                   placeholder="图标">
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -76,7 +76,7 @@
 
                                         <div class="col-sm-10">
                                             <input type="number" class="form-control" id="sort" name="sort"
-                                                   placeholder="排序" v-model="formData.sort">
+                                                   placeholder="排序">
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -84,14 +84,14 @@
 
                                         <div class="col-sm-10">
                                             <input type="text" class="form-control" id="description" name="description"
-                                                   placeholder="描述" v-model="formData.description">
+                                                   placeholder="描述">
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <div class="col-sm-offset-2 col-sm-10">
                                             <div class="checkbox">
                                                 <label>
-                                                    <input type="checkbox" name="hide" id="hide" v-model="formData.hide"> 隐藏
+                                                    <input type="checkbox" name="hide" id="hide" value="1"> 隐藏
                                                 </label>
                                             </div>
                                         </div>
@@ -121,16 +121,8 @@
     <script src="/plugins/zTree/js/jquery.ztree.all.js" type="text/javascript"></script>
     <script type="text/javascript">
         $(document).ready(function () {
-            getMenus();
+           getMenus();
         });
-
-        var data = {formData: {}};
-        var vm = new Vue({
-            el: '#menus-app',
-            data: data
-        });
-
-                {{--http://www.treejs.cn/v3/main.php#_zTreeInfo--}}
         var zTreeObj;
         // zTree 的参数配置，深入使用请参考 API 文档（setting 配置详解）
         var setting = {
@@ -157,7 +149,6 @@
         };
         // zTree 的数据属性，深入使用请参考 API 文档（zTreeNode 节点数据详解）
 
-        //点击菜单节点获取菜单数据
         function zTreeOnClick(event, treeId, treeNode) {
             if (treeNode.level === 0) {
                 return;
@@ -166,11 +157,10 @@
                 type: "GET",
                 url: "get_menu",
                 data: {id: treeNode.id},
-                dataType: "json",
                 success: function (data) {
                     $(".menu-no-selected").hide();
                     $(".menu-selected").show();
-                    vm.$set(vm, 'formData', data);
+                    $('form').setFormVal(data);
                 }
             });
         }
@@ -228,10 +218,8 @@
 
         //编辑菜单
         $("#submit").click(function () {
-            var data = vm.formData;
-            if (data.hide === true) {
-                data.hide = 1;
-            } else {
+            var data = $('form').getFormVal();
+            if (data.hide != 1) {
                 data.hide = 0;
             }
             $.ajax({
@@ -286,6 +274,7 @@
                 });
                 return true;
             }
+            alert('不能有3级菜单');
             return false;
         }
 
@@ -309,9 +298,10 @@
                 dataType: 'json',
                 success: function (response) {
                     if (response.code === 0) {
-                        if (vm.formData.id == id) {
+                        if ($("#id").val() == id) {
                             //删除当前选中菜单时，右侧界面恢复
-                            vm.formData = {};
+                            $(".menu-no-selected").show();
+                            $(".menu-selected").hide();
                         }
                         return true;
                     } else {

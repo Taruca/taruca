@@ -102,10 +102,9 @@
 <script src="/bower_components/fastclick/lib/fastclick.js"></script>
 <!-- AdminLTE App -->
 <script src="/dist/js/adminlte.min.js"></script>
-<script src="/js/vue.js"></script>
 
 <script src="/js/ajaxset.js?v=2"></script>
-<script src="/js/common.js?v=2"></script>
+<script src="/js/formHelpers.js?v=2"></script>
 @yield('js')
 </body>
 </html>
