@@ -3,6 +3,7 @@
     <section class="sidebar">
         <!-- sidebar menu: : style can be found in sidebar.less -->
         <ul class="sidebar-menu" data-widget="tree">
+            {{var_dump($activeRoute)}}
             @foreach ($menus[0] as $key => $menu)
                 @if (isset($menus[$menu['id']]) && count($menus[$menu['id']]) > 0)
                     {{--有子菜单--}}

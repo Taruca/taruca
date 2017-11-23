@@ -54,11 +54,11 @@ class UsersController extends Controller
     public function update(Request $request)
     {
         $this->validate($request, [
-            'name' => 'required|max:255',
+            'name' => 'required|max:20',
             'id' => 'required'
         ], [
             'name.required' => '姓名必须填写',
-            'name.max' => '姓名长度最大为255',
+            'name.max' => '姓名长度最大为20',
             'id.required' => 'id必须传入'
         ]);
         $data = $request->all();
@@ -66,13 +66,18 @@ class UsersController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Remove the specified resource from storage.
      *
-     * @return \Illuminate\Http\Response
+     * @param  Request  $request
+     * @return int
      */
-    public function create()
+    public function destroy(Request $request)
     {
-        //
+        $this->validate($request, [
+            'id' => 'required'
+        ]);
+        $id = $request->input('id');
+        return User::destroy($id);
     }
 
     /**
@@ -83,28 +88,26 @@ class UsersController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
+        $this->validate($request, [
+            'name' => 'required|max:20|unique:users,name',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:6|confirmed',
+        ], [
+            'name.required' => '姓名必须填写',
+            'name.max' => '姓名最大长度为20个字符',
+            'name.unique' => '姓名已存在',
+            'email.required' => '邮箱必须填写',
+            'email.email' => '邮箱格式不正确',
+            'email.unique' => '邮箱已存在',
+            'password.required' => '密码必须填写',
+            'password.min' => '密码长度最小为6位',
+            'password.confirmed' => '密码和确认密码不一致'
+        ]);
+        $data =$request->all();
+        return User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => bcrypt($data['password'])
+        ]);
     }
 }

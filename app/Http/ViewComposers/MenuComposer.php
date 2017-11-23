@@ -4,6 +4,7 @@ namespace App\Http\ViewComposers;
 
 use App\Models\Menu;
 use Illuminate\Contracts\View\View;
+use Illuminate\Routing\Route;
 
 class MenuComposer
 {
@@ -19,6 +20,14 @@ class MenuComposer
     {
         $model = new Menu;
         $menus = $model->getActiveMenus();
-        $view->with(compact('menus'));
+        $activeRoute = $this->getCurUrl();
+        $view->with(compact('menus', 'activeRoute'));
+    }
+
+
+    private function getCurUrl() {
+        return $url = url()->current();
+        preg_match('/\/(\?|#)?$/', $url, $pregArr);
+        return $pregArr;
     }
 }

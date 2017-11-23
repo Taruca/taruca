@@ -11,4 +11,5 @@ Route::post('change_parent', 'MenusController@changeParent');
 
 Route::get('users', 'UsersController@index');
 Route::get('user', 'UsersController@show');
-Route::post('user', 'UsersController@update');
+Route::delete('user', 'UsersController@destroy');
+Route::post('user', 'UsersController@store');
