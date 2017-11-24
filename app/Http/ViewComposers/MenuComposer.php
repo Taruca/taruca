@@ -26,8 +26,14 @@ class MenuComposer
 
 
     private function getCurUrl() {
-        return $url = url()->current();
-        preg_match('/\/(\?|#)?$/', $url, $pregArr);
-        return $pregArr;
+        $url = url()->current();
+        $url = str_replace('http://', '', $url);
+        $url = str_replace('https://', '', $url);
+        $index = strpos($url, '/');
+        if ($index > 0 && $index < strlen($url) - 1) {
+            return substr($url, $index + 1);
+        } else {
+            return config('backend.menus.defaultMenu');
+        }
     }
 }
