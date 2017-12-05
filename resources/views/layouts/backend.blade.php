@@ -27,6 +27,7 @@
     <link rel="stylesheet" href="/bower_components/bootstrap-daterangepicker/daterangepicker.css">
     <!-- bootstrap wysihtml5 - text editor -->
     <link rel="stylesheet" href="/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css">
+    <link rel="stylesheet" href="/plugins/easyLoading/css/easy-loading.css">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -102,9 +103,10 @@
 <script src="/bower_components/fastclick/lib/fastclick.js"></script>
 <!-- AdminLTE App -->
 <script src="/dist/js/adminlte.min.js"></script>
+<script src="/plugins/easyLoading/js/easy-loading.js"></script>
 
-<script src="/js/ajaxset.js?v=2"></script>
-<script src="/js/formHelpers.js?v=2"></script>
+<script src="/js/ajaxset.js?v={{time()}}"></script>
+<script src="/js/formHelpers.js?v={{time()}}"></script>
 @yield('js')
 </body>
 </html>

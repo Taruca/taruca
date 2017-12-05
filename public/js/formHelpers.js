@@ -43,3 +43,38 @@ $.fn.setFormVal = function (jsonValue) {
         }
     })
 };
+
+//idArray中的id格式为'操作-字段名'
+//获取modal中input的值
+function getModalVal(idArray) {
+    var data = {};
+    $.each(idArray, function (index, value) {
+        var key = value.split('-')[1];
+        data[key] = $("#" + value).val();
+    });
+    return data;
+}
+
+//获取同一个class的标签的值
+function getClassGroupVal(className) {
+    var data = [];
+    $(className).each(function () {
+        data.push($.trim($(this).text()));
+    });
+    return data;
+}
+
+function clearForm(form) {
+    // input清空
+    $(':input', form).each(function () {
+        var type = this.type;
+        var tag = this.tagName.toLowerCase(); // normalize case
+        if (type == 'text' || type == 'password' || tag == 'textarea')
+            this.value = "";
+        // 多选checkboxes清空
+        // select 下拉框清空
+        else if (tag == 'select') {
+            this.selectedIndex = 0;
+        }
+    });
+}

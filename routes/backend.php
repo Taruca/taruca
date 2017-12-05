@@ -13,3 +13,6 @@ Route::get('users', 'UsersController@index');
 Route::get('user', 'UsersController@show');
 Route::delete('user', 'UsersController@destroy');
 Route::post('user', 'UsersController@store');
+
+Route::get('segments', 'SegmentsController@index');
+Route::post('segments', 'SegmentsController@add');

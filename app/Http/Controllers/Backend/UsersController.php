@@ -10,6 +10,7 @@ class UsersController extends Controller
 {
     /**
      * Display a listing of the resource.
+     * @param $request
      *
      * @return \Illuminate\Http\Response
      */
