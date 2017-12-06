@@ -50,7 +50,7 @@
                                         <td>{{$user->created_at}}</td>
                                         <td>
                                             <button type="button" class="btn btn-sm btn-primary" onclick="showUserModal('{{$user->id}}')">修改</button>
-                                            <button type="button" class="btn btn-sm btn-info" onclick="deleteUser('{{$user->id}}')">删除</button>
+                                            <button type="button" class="btn btn-sm btn-primary" onclick="deleteUser('{{$user->id}}')">删除</button>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -223,7 +223,6 @@
             });
         }
 
-        console.log('{{url()->current()}}');
     </script>
 @endsection
 

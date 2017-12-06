@@ -16,3 +16,6 @@ Route::post('user', 'UsersController@store');
 
 Route::get('segments', 'SegmentsController@index');
 Route::post('segments', 'SegmentsController@add');
+Route::get('segment', 'SegmentsController@show');
+Route::post('segment', 'SegmentsController@store');
+Route::delete('segment', 'SegmentsController@destroy');
